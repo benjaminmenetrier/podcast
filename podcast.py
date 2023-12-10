@@ -13,6 +13,9 @@ import subprocess
 import unicodedata
 from urllib.request import urlretrieve
 
+# Podcast files folder
+podcast_dir=os.path.expanduser("~") + "/Music/Podcast" # => should be in parser
+
 # Parser
 parser = argparse.ArgumentParser()
 #parser.add_argument("podcast_dir", help="Podcast directory", required=True)
@@ -25,9 +28,6 @@ print("Parameters:")
 for arg in vars(args):
     if not arg is None:
         print(" - " + arg + ": " + str(getattr(args, arg)))
-
-# Podcast files folder
-podcast_dir=os.path.expanduser("~") + "/Music/PodcastTest" # => should be in parser
 
 # Script directory
 base_dir=os.path.dirname(os.path.realpath(__file__))
@@ -84,6 +84,8 @@ for item in pathlib.Path(podcast_dir).rglob("*.mp3"):
   head_tail = os.path.split(item)
   filename = head_tail[1]
   filebase[filename] = str(item)
+with open("filebase.json", "w", encoding ="utf8") as json_file: 
+  json.dump(filebase, json_file, ensure_ascii=True, indent=2) 
 
 # Full list
 fullbase = {}
