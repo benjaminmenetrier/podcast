@@ -12,9 +12,9 @@ dst_pods=`find . -name *.mp3`
 # Loop over source podcast
 echo "Files copied on phone:"
 for file in ${src_pods}; do
-  echo "${dst_dir}/${file}"
   if ! test -f "${dst_dir}/${file}"; then
     # Copy podcast to destination
+    echo "${dst_dir}/${file}"
     dir="$(dirname "${file}")"
     mkdir -p "${dst_dir}/${dir}"
     gio copy "${src_dir}/${file}" "${dst_dir}/${file}"

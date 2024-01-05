@@ -69,11 +69,14 @@ for line in open(os.path.join(base_dir, "serverlist")):
       itemData["artist"] = artist
       itemData["album"] = album
       itemData["url"] = item.enclosure.attributes["url"]
-      dateElements = item.pub_date.content.split(" ")
-      day = int(dateElements[1])
-      month = list(calendar.month_abbr).index(dateElements[2])
-      year = int(dateElements[3])
-      itemData["date"] = str(datetime.date(year, month, day))
+      if item.pub_date == None:
+        itemData["date"] = "NoDate"
+      else:
+        dateElements = item.pub_date.content.split(" ")
+        day = int(dateElements[1])
+        month = list(calendar.month_abbr).index(dateElements[2])
+        year = int(dateElements[3])
+        itemData["date"] = str(datetime.date(year, month, day))
       filename = itemData["date"] + "_" + filename + ".mp3"
       rssbase[filename] = itemData
 
