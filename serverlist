@@ -1,8 +1,8 @@
 # Server list format: URL ARTIST ALBUM
-https://anchor.fm/s/612feee4/podcast/rss France_Corruption France_Corruption
+# Lines starting with # are not processed
+#https://anchor.fm/s/612feee4/podcast/rss France_Corruption France_Corruption
 https://audioblog.arteradio.com/blog/186156/rss DavDuf Au_Poste
 https://feeds.acast.com/public/shows/157bb756-66a0-4d4e-88f9-6f024403eada Binge_Audio Le_Coeur_Sur_La_Table
-https://radiofrance-podcast.net/podcast09/rss_18153.xml France_Inter Le_Grand_Dimanche_Soir
 https://feeds.acast.com/public/shows/aa928f4a-8155-4b36-b190-4dfd32da8a84 Binge_Audio Les_Couilles_Sur_La_Table
 http://radiofrance-podcast.net/podcast09/rss_10078.xml France_Culture Les_Pieds_Sur_Terre
 http://radiofrance-podcast.net/podcast09/rss_10177.xml France_Culture LSD
@@ -16,3 +16,14 @@ https://www.arteradio.com/xml_sound_emission?emissionname=%22Sex%20and%20sounds%
 https://api.blast-info.fr/contents/podcasts/la-premiere-gilet-jaune-du-dernier-rond-point-q9i1Er4wSaCxTV1XfXP0KQ/rss.xml Blast Gilet_Jaune
 https://api.blast-info.fr/contents/podcasts/la-vie-de-jean-jean-9uFSogFMT4OsC32JZw-LwQ/rss.xml Blast La_Vie_De_Jean
 https://api.blast-info.fr/contents/podcasts/pagaille-PNF7gBJsRjCfsef-25htBA/rss.xml Blast Pagaille
+https://api.blast-info.fr/contents/podcasts/seul-comme-toi-1H4Ah9uYR7yCLGfBhvo_FQ/rss.xml Blast Seul_comme_toi
+https://www.arteradio.com/xml_sound_emission?emissionname=%22La%20Chute%20de%20Lapinville%22 Arte_Radio La_Chute_de_Lapinville
+https://www.arteradio.com/xml_sound_emission?emissionname=%22Fen%C3%AAtre%20sur%20cour%22 Elise_Costa Fenetre_Sur_Cour
+https://www.arteradio.com/xml_sound_serie?seriename=%22MARTIN%20WINCKLER%20:%20J%27AI%20MAL%20L%C3%80%22 Martin_Winckler J_ai_mal_la
+https://www.arteradio.com/xml_sound_serie?seriename=%22PELLES%20ET%20R%C3%82TEAUX%22 Arte_Radio Pelles_et_Rateaux
+https://www.arteradio.com/xml_sound_serie?seriename=%22LA%20REINE%20DES%20PIRATES%22 Claire_Richard La_Reine_des_Pirates
+https://www.arteradio.com/xml_sound_serie?seriename=%22L%27%C3%89COLE%20C%27EST%20DE%20LA%20MERDE%22 Anis_Rhali L_Ecole_c_est_de_la_merde
+https://www.arteradio.com/xml_sound_serie?seriename=%22LIGNE%20DE%20FUITE%22 Arte_Radio Ligne_De_Fuite
+https://www.arteradio.com/xml_sound_serie?seriename=%22GONZO%20PARANO%22 Arte_Radio Gonzo_Parano
+https://www.arteradio.com/xml_sound_serie?seriename=%22SUR%20LE%20FIL%22 Arte_Radio Sur_Le_Fil
+https://spectremedia.org/feed/podcast/minuit-dans-le-siecle Spectre Minuit_Dans_Le_Siecle

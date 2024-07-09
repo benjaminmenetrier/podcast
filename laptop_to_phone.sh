@@ -20,6 +20,17 @@ for file in ${src_pods}; do
     gio copy "${src_dir}/${file}" "${dst_dir}/${file}"
   fi
 done
+echo "Files removed from phone:"
+for file in ${dst_pods}; do
+  if ! test -f "${src_dir}/${file}"; then
+    # Remove podcast from destination
+    echo "${dst_dir}/${file}"
+    dir="$(dirname "${file}")"
+    mkdir -p "${dst_dir}/${dir}"
+    gio remove "${dst_dir}/${file}"
+  fi
+done
+
 IFS=${SAVEIFS}
 
 exit 0
