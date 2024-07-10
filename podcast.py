@@ -148,8 +148,8 @@ if len(dllist) > 0:
     f["artist"] = dlbase[item]["artist"]
     f["album"] = dlbase[item]["album"]
     f["tracktitle"] = dlbase[item]["title"]
-    f["year"] = dlbase[item]["date"]
-    f["tracknumber"] = 1
+    f.raw["year"] = dlbase[item]["date"]
+    f.raw["tracknumber"] = 1
     f["genre"] = "Podcast"
     f.save()
 else:
