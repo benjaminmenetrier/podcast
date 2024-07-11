@@ -10,7 +10,7 @@ import os
 import pathlib
 import re
 from requests import get
-from rss_parser import Parser
+from rss_parser import RSSParser
 import subprocess
 import unicodedata
 from urllib.request import urlretrieve
@@ -30,7 +30,7 @@ podcast_dir = os.path.expanduser("~") + "/Music/Podcast"
 #        print(" - " + arg + ": " + str(getattr(args, arg)))
 
 # Script directory
-base_dir=os.path.dirname(os.path.realpath(__file__))
+base_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Make directories
 os.makedirs(podcast_dir, exist_ok=True)
@@ -39,7 +39,7 @@ os.makedirs(podcast_dir, exist_ok=True)
 if os.path.exists("database.json"):
   database = json.load(open("database.json"))
   with open("database.json.bak", "w", encoding ="utf8") as json_file:
-    json.dump(database, json_file, ensure_ascii=True, indent=2)
+    json.dump(database, json_file, ensure_ascii =True, indent=2)
 else:
   database = {}
 
@@ -47,15 +47,15 @@ else:
 print("Processing RSS feeds")
 rssbase = {}
 for line in open(os.path.join(base_dir, "serverlist")):
-  li=line.strip()
+  li = line.strip()
   if not li.startswith("#"):
-    serverlist=line.rstrip().split(" ")
+    serverlist = line.rstrip().split(" ")
     url = serverlist[0]
     artist = serverlist[1]
     album = serverlist[2]
     print("- Checking " + url, end=" ... ")
     response = get(url)
-    rss = Parser.parse(response.text)
+    rss = RSSParser.parse(response.text)
 
     for item in rss.channel.items:
       url = item.enclosure.attributes["url"]
@@ -87,7 +87,7 @@ for item in pathlib.Path(podcast_dir).rglob("*.mp3"):
   head_tail = os.path.split(item)
   filename = head_tail[1]
   filebase[filename] = str(item)
-with open("filebase.json", "w", encoding ="utf8") as json_file:
+with open("filebase.json", "w", encoding="utf8") as json_file:
   json.dump(filebase, json_file, ensure_ascii=True, indent=2)
 
 # Full list

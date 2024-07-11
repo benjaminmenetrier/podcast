@@ -1,0 +1,4 @@
+# Server list format: URL ARTIST ALBUM (no white space in ARTIST or ALBUM)
+# Lines starting with # are not processed
+https://audioblog.arteradio.com/blog/186156/rss DavDuf Au_Poste
+http://radiofrance-podcast.net/podcast09/rss_10078.xml France_Culture Les_Pieds_Sur_Terre
