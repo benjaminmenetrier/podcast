@@ -2,3 +2,5 @@ database.json
 database.json.bak
 filebase.json
 serverlist
+rss_stream
+wget_log

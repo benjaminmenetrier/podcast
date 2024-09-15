@@ -5,15 +5,13 @@ import calendar
 import datetime
 import inquirer
 import json
-import music_tag
+import taglib
 import os
 import pathlib
 import re
-from requests import get
 from rss_parser import RSSParser
 import subprocess
 import unicodedata
-from urllib.request import urlretrieve
 
 # Podcast files folder (should be in parser)
 podcast_dir = os.path.expanduser("~") + "/Music/Podcast"
@@ -54,8 +52,14 @@ for line in open(os.path.join(base_dir, "serverlist")):
     artist = serverlist[1]
     album = serverlist[2]
     print("- Checking " + url, end=" ... ")
-    response = get(url)
-    rss = RSSParser.parse(response.text)
+    try:
+      os.remove("rss_stream")
+    except OSError:
+      pass
+    result = subprocess.run(['wget', '-O', 'rss_stream', '-o', 'wget_log', url])
+    with open("rss_stream") as f:
+      data = f.read()
+    rss = RSSParser.parse(data)
 
     for item in rss.channel.items:
       url = item.enclosure.attributes["url"]
@@ -72,10 +76,10 @@ for line in open(os.path.join(base_dir, "serverlist")):
         itemData["date"] = "NoDate"
       else:
         dateElements = item.pub_date.content.split(" ")
-        day = int(dateElements[1])
-        month = list(calendar.month_abbr).index(dateElements[2])
-        year = int(dateElements[3])
-        itemData["date"] = str(datetime.date(year, month, day))
+        itemData["day"] = int(dateElements[1])
+        itemData["month"] = list(calendar.month_abbr).index(dateElements[2])
+        itemData["year"] = int(dateElements[3])
+        itemData["date"] = str(datetime.date(itemData["year"], itemData["month"], itemData["day"]))
       filename = itemData["date"] + "_" + filename + ".mp3"
       rssbase[filename] = itemData
     print(str(len(rss.channel.items)) + " elements found")
@@ -106,6 +110,7 @@ for item in filebase:
 
 # Loop over full list
 dlbase = {}
+tagbase = {}
 dltitlelist = []
 dllist = []
 for item in fullbase:
@@ -125,12 +130,17 @@ for item in fullbase:
     database[item] = filepath
     label = dlbase[item]["artist"] + " - " + dlbase[item]["album"] + " - " + dlbase[item]["title"] + " (" + dlbase[item]["date"] + ")"
     dllist.append((label,item))
+  elif (item in database) and (item in filebase) and (item in rssbase):
+    # Update tag potentially
+    filepath = os.path.join(podcast_dir, rssbase[item]["artist"], rssbase[item]["album"], item)
+    tagbase[item] = rssbase[item]
+    tagbase[item]["filepath"] = filepath
   elif (not item in database) and (not item in filebase) and (not item in rssbase):
     raise Exception("Item " + item + " should not be in full list")
 
 if len(dllist) > 0:
   # Ask user what should be actually downloaded
-  questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist, default=dllist)]
+  questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist)]
   answers = inquirer.prompt(questions)
 
   # Download data
@@ -141,19 +151,35 @@ if len(dllist) > 0:
     os.makedirs(os.path.dirname(dlbase[item]["filepath"]), exist_ok=True)
 
     # Download file
-    urlretrieve(dlbase[item]["url"], dlbase[item]["filepath"])
+    result = subprocess.run(['wget', '-O', dlbase[item]["filepath"], '-o', 'wget_log', dlbase[item]["url"]])
 
     # Update mp3 metadata
-    f = music_tag.load_file(dlbase[item]["filepath"])
-    f["artist"] = dlbase[item]["artist"]
-    f["album"] = dlbase[item]["album"]
-    f["tracktitle"] = dlbase[item]["title"]
-    f.raw["year"] = dlbase[item]["date"]
-    f.raw["tracknumber"] = 1
-    f["genre"] = "Podcast"
-    f.save()
+    with taglib.File(dlbase[item]["filepath"], save_on_exit=True) as song:
+     song.tags["ARTIST"] = dlbase[item]["artist"]
+     song.tags["ALBUM"] = dlbase[item]["album"]
+     song.tags["TITLE"] = dlbase[item]["title"]
+     song.tags["TRACKNUMBER"] = "1"
+     song.tags["DATE"] = dlbase[item]["date"]
+     song.tags["GENRE"] = "Podcast"
 else:
   print("No new podcast to download")
+
+if len(tagbase) > 0:
+  # Ask user tags should be updated
+  questions = [inquirer.List("updateTags", message="Update tags?", choices=["yes", "no"], default="no")]   
+  answers = inquirer.prompt(questions)
+  if answers["updateTags"] == "yes":
+    for item in tagbase:
+      print("Updating tag of " + tagbase[item]["filepath"])
+
+      # Update mp3 metadata
+      with taglib.File(tagbase[item]["filepath"], save_on_exit=True) as song:
+       song.tags["ARTIST"] = tagbase[item]["artist"]
+       song.tags["ALBUM"] = tagbase[item]["album"]
+       song.tags["TITLE"] = tagbase[item]["title"]
+       song.tags["TRACKNUMBER"] = "1"
+       song.tags["DATE"] = tagbase[item]["date"]
+       song.tags["GENRE"] = "Podcast"
 
 # Write database
 with open("database.json", "w", encoding ="utf8") as json_file:
