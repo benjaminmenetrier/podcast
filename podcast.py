@@ -6,6 +6,7 @@ import datetime
 import inquirer
 import json
 import taglib
+from pydub import AudioSegment
 import os
 import pathlib
 import re
@@ -140,7 +141,7 @@ for item in fullbase:
 
 if len(dllist) > 0:
   # Ask user what should be actually downloaded
-  questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist)]
+  questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist, default=dllist)]
   answers = inquirer.prompt(questions)
 
   # Download data
@@ -151,7 +152,16 @@ if len(dllist) > 0:
     os.makedirs(os.path.dirname(dlbase[item]["filepath"]), exist_ok=True)
 
     # Download file
-    result = subprocess.run(['wget', '-O', dlbase[item]["filepath"], '-o', 'wget_log', dlbase[item]["url"]])
+    extension = pathlib.Path(dlbase[item]["url"]).suffix
+    result = subprocess.run(['wget', '-O', "tmp" + extension, '-o', 'wget_log', dlbase[item]["url"]])
+
+    if extension == ".mp3":
+      # Move file
+      os.rename("tmp" + extension, dlbase[item]["url"])
+    else:
+      # Convert file to mp3
+      audio = AudioSegment.from_file("tmp" + extension, format=extension.replace(".",""))
+      audio.export(dlbase[item]["filepath"], format="mp3")
 
     # Update mp3 metadata
     with taglib.File(dlbase[item]["filepath"], save_on_exit=True) as song:
