@@ -157,7 +157,7 @@ if len(dllist) > 0:
 
     if extension == ".mp3":
       # Move file
-      os.rename("tmp" + extension, dlbase[item]["url"])
+      os.rename("tmp" + extension, dlbase[item]["filepath"])
     else:
       # Convert file to mp3
       audio = AudioSegment.from_file("tmp" + extension, format=extension.replace(".",""))
