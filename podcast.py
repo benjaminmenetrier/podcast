@@ -174,22 +174,22 @@ if len(dllist) > 0:
 else:
   print("No new podcast to download")
 
-if len(tagbase) > 0:
-  # Ask user tags should be updated
-  questions = [inquirer.List("updateTags", message="Update tags?", choices=["yes", "no"], default="no")]   
-  answers = inquirer.prompt(questions)
-  if answers["updateTags"] == "yes":
-    for item in tagbase:
-      print("Updating tag of " + tagbase[item]["filepath"])
+#if len(tagbase) > 0:
+#  # Ask user tags should be updated
+#  questions = [inquirer.List("updateTags", message="Update tags?", choices=["yes", "no"], default="no")]
+#  answers = inquirer.prompt(questions)
+#  if answers["updateTags"] == "yes":
+#    for item in tagbase:
+#      print("Updating tag of " + tagbase[item]["filepath"])
 
-      # Update mp3 metadata
-      with taglib.File(tagbase[item]["filepath"], save_on_exit=True) as song:
-       song.tags["ARTIST"] = tagbase[item]["artist"]
-       song.tags["ALBUM"] = tagbase[item]["album"]
-       song.tags["TITLE"] = tagbase[item]["title"]
-       song.tags["TRACKNUMBER"] = "1"
-       song.tags["DATE"] = tagbase[item]["date"]
-       song.tags["GENRE"] = "Podcast"
+#      # Update mp3 metadata
+#      with taglib.File(tagbase[item]["filepath"], save_on_exit=True) as song:
+#       song.tags["ARTIST"] = tagbase[item]["artist"]
+#       song.tags["ALBUM"] = tagbase[item]["album"]
+#       song.tags["TITLE"] = tagbase[item]["title"]
+#       song.tags["TRACKNUMBER"] = "1"
+#       song.tags["DATE"] = tagbase[item]["date"]
+#       song.tags["GENRE"] = "Podcast"
 
 # Write database
 with open("database.json", "w", encoding ="utf8") as json_file:
