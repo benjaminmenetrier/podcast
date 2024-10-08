@@ -153,6 +153,8 @@ if len(dllist) > 0:
 
     # Download file
     extension = pathlib.Path(dlbase[item]["url"]).suffix
+    if "?" in extension:
+      extension = extension.split('?', 1)[0]
     result = subprocess.run(['wget', '-O', "tmp" + extension, '-o', 'wget_log', dlbase[item]["url"]])
 
     if extension == ".mp3":
