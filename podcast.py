@@ -28,16 +28,13 @@ podcast_dir = os.path.expanduser("~") + "/Music/Podcast"
 #    if not arg is None:
 #        print(" - " + arg + ": " + str(getattr(args, arg)))
 
-# Script directory
-base_dir = os.path.dirname(os.path.realpath(__file__))
-
 # Make directories
 os.makedirs(podcast_dir, exist_ok=True)
 
 # Load data base or initialize
-if os.path.exists("database.json"):
-  database = json.load(open("database.json"))
-  with open("database.json.bak", "w", encoding ="utf8") as json_file:
+if os.path.exists(os.path.join(podcast_dir, "database.json")):
+  database = json.load(open(os.path.join(podcast_dir, "database.json")))
+  with open(os.path.join(podcast_dir, "database.json.bak"), "w", encoding ="utf8") as json_file:
     json.dump(database, json_file, ensure_ascii =True, indent=2)
 else:
   database = {}
@@ -45,7 +42,7 @@ else:
 # Fill rss base
 print("Processing RSS feeds")
 rssbase = {}
-for line in open(os.path.join(base_dir, "serverlist")):
+for line in open(os.path.join(podcast_dir, "serverlist")):
   li = line.strip()
   if not li.startswith("#"):
     serverlist = line.rstrip().split(" ")
@@ -54,11 +51,11 @@ for line in open(os.path.join(base_dir, "serverlist")):
     album = serverlist[2]
     print("- Checking " + url, end=" ... ")
     try:
-      os.remove("rss_stream")
+      os.remove(os.path.join(podcast_dir, "rss_stream"))
     except OSError:
       pass
-    result = subprocess.run(['wget', '-O', 'rss_stream', '-o', 'wget_log', url])
-    with open("rss_stream") as f:
+    result = subprocess.run(['wget', '-O', os.path.join(podcast_dir, 'rss_stream'), '-o', 'wget_log', url])
+    with open(os.path.join(podcast_dir, "rss_stream")) as f:
       data = f.read()
     rss = RSSParser.parse(data)
 
@@ -92,7 +89,7 @@ for item in pathlib.Path(podcast_dir).rglob("*.mp3"):
   head_tail = os.path.split(item)
   filename = head_tail[1]
   filebase[filename] = str(item)
-with open("filebase.json", "w", encoding="utf8") as json_file:
+with open(os.path.join(podcast_dir, "filebase.json"), "w", encoding="utf8") as json_file:
   json.dump(filebase, json_file, ensure_ascii=True, indent=2)
 
 # Full list
@@ -155,14 +152,14 @@ if len(dllist) > 0:
     extension = pathlib.Path(dlbase[item]["url"]).suffix
     if "?" in extension:
       extension = extension.split('?', 1)[0]
-    result = subprocess.run(['wget', '-O', "tmp" + extension, '-o', 'wget_log', dlbase[item]["url"]])
+    result = subprocess.run(['wget', '-O', os.path.join(podcast_dir, "tmp") + extension, '-o', 'wget_log', dlbase[item]["url"]])
 
     if extension == ".mp3":
       # Move file
-      os.rename("tmp" + extension, dlbase[item]["filepath"])
+      os.rename(os.path.join(podcast_dir, "tmp") + extension, dlbase[item]["filepath"])
     else:
       # Convert file to mp3
-      audio = AudioSegment.from_file("tmp" + extension, format=extension.replace(".",""))
+      audio = AudioSegment.from_file(os.path.join(podcast_dir, "tmp") + extension, format=extension.replace(".",""))
       audio.export(dlbase[item]["filepath"], format="mp3")
 
     # Update mp3 metadata
@@ -194,5 +191,5 @@ else:
 #       song.tags["GENRE"] = "Podcast"
 
 # Write database
-with open("database.json", "w", encoding ="utf8") as json_file:
+with open(os.path.join(podcast_dir, "database.json"), "w", encoding ="utf8") as json_file:
   json.dump(database, json_file, ensure_ascii=True, indent=2)
