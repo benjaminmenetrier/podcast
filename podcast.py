@@ -174,7 +174,6 @@ if len(dllist) > 0:
     extension = pathlib.Path(dlbase[item]["url"]).suffix
     if "?" in extension:
       extension = extension.split('?', 1)[0]
-    print('wget -O ' + os.path.join(podcast_dir, "tmp") + extension + ' -o wget_log ' + dlbase[item]["url"])
     result = subprocess.run(['wget', '-O', os.path.join(podcast_dir, "tmp") + extension, '-o', 'wget_log', dlbase[item]["url"]])
     if result.returncode != 0:
       raise Exception("Cannot download: " + dlbase[item]["url"] + ", error code: " + str(result.returncode))
