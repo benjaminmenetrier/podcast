@@ -1,4 +1,23 @@
 # Server list format: URL ARTIST ALBUM (no white space in ARTIST or ALBUM)
 # Lines starting with # are not processed
-https://audioblog.arteradio.com/blog/186156/rss DavDuf Au_Poste
-http://radiofrance-podcast.net/podcast09/rss_10078.xml France_Culture Les_Pieds_Sur_Terre
+https://feeds.acast.com/public/shows/157bb756-66a0-4d4e-88f9-6f024403eada Binge_Audio Le_Coeur_Sur_La_Table
+https://feeds.acast.com/public/shows/aa928f4a-8155-4b36-b190-4dfd32da8a84 Binge_Audio Les_Couilles_Sur_La_Table
+https://radiofrance-podcast.net/podcast09/rss_10078.xml France_Culture Les_Pieds_Sur_Terre
+https://radiofrance-podcast.net/podcast09/rss_10177.xml France_Culture LSD
+https://feeds.acast.com/public/shows/5c74448857223e944f75f7b6 Elisabeth_Feytit Méta_De_Choc
+https://feeds.360.audion.fm/EZqjvOzZXgWIKWg0EETBQ Slate_Podcast Transfert
+https://www.arteradio.com/xml_sound_emission?emissionname="Un%20podcast%20à%20soi" Charlotte_Bienaimé Un_Podcast_A_Soi
+https://www.arteradio.com/xml_sound_emission?emissionname="Vivons%20heureux%20avant%20la%20fin%20du%20monde" Delphine_Saltel Vivons_Heureux_Avant_La_Fin_Du_Monde
+https://radiofrance-podcast.net/podcast09/rss_23748.xml France_Culture Mécanique_Du_Vivant
+https://api.blast-info.fr/contents/podcasts/pagaille-PNF7gBJsRjCfsef-25htBA/rss.xml Blast Pagaille
+https://api.blast-info.fr/contents/podcasts/seul-comme-toi-1H4Ah9uYR7yCLGfBhvo_FQ/rss.xml Blast Seul_comme_toi
+https://www.arteradio.com/xml_sound_emission?emissionname=%22La%20Chute%20de%20Lapinville%22 Arte_Radio La_Chute_de_Lapinville
+https://www.arteradio.com/xml_sound_serie?seriename=%22LIGNE%20DE%20FUITE%22 Arte_Radio Ligne_De_Fuite
+https://anchor.fm/s/4adac90c/podcast/rss Lær_norsk_nå Norsk_for_Beginners
+https://anchor.fm/s/19b5cbd8/podcast/rss Lær_norsk_nå Lær_norsk_nå
+https://www.arteradio.com/xml_flux?fluxname=%22Profils%22 Arte_Radio Profils
+
+https://www.arteradio.com/xml_sound_emission?emissionname=%22Fen%C3%AAtre%20sur%20cour%22 Elise_Costa Fenetre_Sur_Cour
+https://www.arteradio.com/xml_sound_serie?seriename=%22MARTIN%20WINCKLER%20:%20J%27AI%20MAL%20L%C3%80%22 Martin_Winckler J_ai_mal_la
+https://www.arteradio.com/xml_sound_serie?seriename=%22PELLES%20ET%20R%C3%82TEAUX%22 Arte_Radio Pelles_et_Rateaux
+https://www.arteradio.com/xml_sound_serie?seriename=%22SUR%20LE%20FIL%22 Arte_Radio Sur_Le_Fil

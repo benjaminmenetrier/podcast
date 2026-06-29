@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 import calendar
 import datetime
+import feedparser
 import inquirer
 import json
 import taglib
@@ -10,12 +11,15 @@ from pydub import AudioSegment
 import os
 import pathlib
 import re
-from rss_parser import RSSParser
 import subprocess
 import unicodedata
+import sys
 
 # Podcast files folder (should be in parser)
-podcast_dir = os.path.expanduser("~") + "/Music/Podcast"
+if os.path.isdir("/media/benjaminm/BACKUP_SSD/Podcast"):
+  podcast_dir = "/media/benjaminm/BACKUP_SSD/Podcast"
+if os.path.isdir("/home/benjamin/BACKUP_SSD/Podcast"):
+  podcast_dir = "/home/benjamin/BACKUP_SSD/Podcast"
 
 # Parser
 #parser = argparse.ArgumentParser()
@@ -49,38 +53,40 @@ for line in open(os.path.join(podcast_dir, "serverlist")):
     url = serverlist[0]
     artist = serverlist[1]
     album = serverlist[2]
-    print("- Checking " + url, end=" ... ")
-    try:
-      os.remove(os.path.join(podcast_dir, "rss_stream"))
-    except OSError:
-      pass
-    result = subprocess.run(['wget', '-O', os.path.join(podcast_dir, 'rss_stream'), '-o', 'wget_log', url])
-    with open(os.path.join(podcast_dir, "rss_stream")) as f:
-      data = f.read()
-    rss = RSSParser.parse(data)
+    print("- Checking " + artist + " - " + album, end=" ... ")
+    rss = feedparser.parse(url)
 
-    for item in rss.channel.items:
-      url = item.enclosure.attributes["url"]
+    for item in rss["entries"]:
       itemData = {}
-      itemData["title"] = item.title.content.replace("’", "'")
+      itemData["title"] = item["title"].replace("’", "'")
+      itemData["title"] = item["title"].replace("&#x27;", "'")
       filename = itemData["title"]
       filename = unicodedata.normalize("NFKD", filename).encode("ascii", "ignore").decode("ascii")
       filename = re.sub(r"[^\w\s-]", "", filename.lower())
       filename = re.sub(r"[-\s]+", "-", filename).strip("-_")
       itemData["artist"] = artist
       itemData["album"] = album
-      itemData["url"] = item.enclosure.attributes["url"]
-      if item.pub_date == None:
-        itemData["date"] = "NoDate"
-      else:
-        dateElements = item.pub_date.content.split(" ")
+      for link in item["links"]:
+        if "audio/" in  link["type"]:
+          itemData["url"] = link["href"]
+      if not "url" in itemData:
+        print("")
+        print("Cannot find file url for item: " + str(item))
+        exit()
+      if "published" in item:
+        dateElements = item["published"].split(" ")
         itemData["day"] = int(dateElements[1])
         itemData["month"] = list(calendar.month_abbr).index(dateElements[2])
         itemData["year"] = int(dateElements[3])
         itemData["date"] = str(datetime.date(itemData["year"], itemData["month"], itemData["day"]))
+      else:
+        itemData["date"] = "NoDate"
       filename = itemData["date"] + "_" + filename + ".mp3"
       rssbase[filename] = itemData
-    print(str(len(rss.channel.items)) + " elements found")
+    print(str(len(rss["entries"])) + " elements found")
+
+    if len(rss["entries"]) == 0:
+      raise Exception("Cannot read feed: " + url)
 
 # Fill files base
 filebase = {}
@@ -125,9 +131,8 @@ for item in fullbase:
     filepath = os.path.join(podcast_dir, rssbase[item]["artist"], rssbase[item]["album"], item)
     dlbase[item] = rssbase[item]
     dlbase[item]["filepath"] = filepath
-    database[item] = filepath
-    label = dlbase[item]["artist"] + " - " + dlbase[item]["album"] + " - " + dlbase[item]["title"] + " (" + dlbase[item]["date"] + ")"
-    dllist.append((label,item))
+    dlbase[item]["label"] = dlbase[item]["artist"] + " - " + dlbase[item]["album"] + " - " + dlbase[item]["title"] + " (" + dlbase[item]["date"] + ")"
+    dllist.append((dlbase[item]["label"],item))
   elif (item in database) and (item in filebase) and (item in rssbase):
     # Update tag potentially
     filepath = os.path.join(podcast_dir, rssbase[item]["artist"], rssbase[item]["album"], item)
@@ -136,14 +141,31 @@ for item in fullbase:
   elif (not item in database) and (not item in filebase) and (not item in rssbase):
     raise Exception("Item " + item + " should not be in full list")
 
+# Write database
+with open(os.path.join(podcast_dir, "database.json"), "w", encoding ="utf8") as json_file:
+  json.dump(database, json_file, ensure_ascii=True, indent=2)
+
 if len(dllist) > 0:
   # Ask user what should be actually downloaded
   questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist, default=dllist)]
+#  questions = [inquirer.Checkbox("downloadList", message="Select podcasts to download", choices=dllist, default=[])]
   answers = inquirer.prompt(questions)
+
+  # Skip non-downloaded items
+  for item in dlbase:
+    if not item in answers["downloadList"]:
+      print("Skipping " + dlbase[item]["label"])
+
+      # Update database
+      database[item] = dlbase[item]["filepath"]
+
+      # Write database
+      with open(os.path.join(podcast_dir, "database.json"), "w", encoding ="utf8") as json_file:
+        json.dump(database, json_file, ensure_ascii=True, indent=2)
 
   # Download data
   for item in answers["downloadList"]:
-    print("Downloading " + dlbase[item]["filepath"])
+    print("Downloading " + dlbase[item]["label"])
 
     # Make directory
     os.makedirs(os.path.dirname(dlbase[item]["filepath"]), exist_ok=True)
@@ -152,7 +174,10 @@ if len(dllist) > 0:
     extension = pathlib.Path(dlbase[item]["url"]).suffix
     if "?" in extension:
       extension = extension.split('?', 1)[0]
+    print('wget -O ' + os.path.join(podcast_dir, "tmp") + extension + ' -o wget_log ' + dlbase[item]["url"])
     result = subprocess.run(['wget', '-O', os.path.join(podcast_dir, "tmp") + extension, '-o', 'wget_log', dlbase[item]["url"]])
+    if result.returncode != 0:
+      raise Exception("Cannot download: " + dlbase[item]["url"] + ", error code: " + str(result.returncode))
 
     if extension == ".mp3":
       # Move file
@@ -164,12 +189,19 @@ if len(dllist) > 0:
 
     # Update mp3 metadata
     with taglib.File(dlbase[item]["filepath"], save_on_exit=True) as song:
-     song.tags["ARTIST"] = dlbase[item]["artist"]
-     song.tags["ALBUM"] = dlbase[item]["album"]
-     song.tags["TITLE"] = dlbase[item]["title"]
-     song.tags["TRACKNUMBER"] = "1"
-     song.tags["DATE"] = dlbase[item]["date"]
-     song.tags["GENRE"] = "Podcast"
+      song.tags["ARTIST"] = dlbase[item]["artist"]
+      song.tags["ALBUM"] = dlbase[item]["album"]
+      song.tags["TITLE"] = dlbase[item]["title"]
+      song.tags["TRACKNUMBER"] = "1"
+      song.tags["DATE"] = dlbase[item]["date"]
+      song.tags["GENRE"] = "Podcast"
+
+    # Update database
+    database[item] = dlbase[item]["filepath"]
+
+    # Write database
+    with open(os.path.join(podcast_dir, "database.json"), "w", encoding ="utf8") as json_file:
+      json.dump(database, json_file, ensure_ascii=True, indent=2)
 else:
   print("No new podcast to download")
 
@@ -189,7 +221,3 @@ else:
 #       song.tags["TRACKNUMBER"] = "1"
 #       song.tags["DATE"] = tagbase[item]["date"]
 #       song.tags["GENRE"] = "Podcast"
-
-# Write database
-with open(os.path.join(podcast_dir, "database.json"), "w", encoding ="utf8") as json_file:
-  json.dump(database, json_file, ensure_ascii=True, indent=2)
